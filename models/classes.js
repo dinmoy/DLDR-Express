@@ -4,15 +4,15 @@ const Classes = (sequelize) => {
     return sequelize.define('classes', {
         id: {
             type: DataTypes.INTEGER,
-            primarykey: true,
-            allowNull: true,
+            primaryKey: true,
+            allowNull: false,
             autoIncrement: true,
         },
         user_id: {
             type: DataTypes.INTEGER,
             allowNull: false,
             references: {
-                model: 'user',
+                model: 'users',
                 key: 'id',
             },
         },
@@ -20,7 +20,7 @@ const Classes = (sequelize) => {
             type: DataTypes.INTEGER,
             allowNull: false,
             references: {
-                model: 'subject',
+                model: 'subjects',
                 key: 'id',
             },
         },
