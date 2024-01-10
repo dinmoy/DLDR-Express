@@ -1,7 +1,7 @@
-const { DataTypes } = require('sequelize')
+const { DataTypes } = require('sequelize');
 
-const Favorite = (sequelize) => {
-    return sequelize.define('favorite', {
+const watchHistory = (sequelize) => {
+    return sequelize.define('watch_history', {
         id: {
             type: DataTypes.INTEGER,
             primaryKey: true,
@@ -16,19 +16,19 @@ const Favorite = (sequelize) => {
                 key: 'id',
             },
         },
-        class_id: {
+        curriculum_id: {
             type: DataTypes.INTEGER,
             allowNull: false,
             references: {
-                model: 'classes',
+                model: 'curriculums',
                 key: 'id',
             },
         },
-        is_deleted: {
-            type: DataTypes.INTEGER,
+        watch_date: {
+            type: DATE,
             allowNull: false,
         },
     });
 };
 
-module.exports = Favorite;
+module.exports = watchHistory;
