@@ -6,8 +6,6 @@ const router = express.Router();
 
 const SALT = 10;
 
-// TODO: 세션에 저장하기
-
 // 회원가입
 router.post('/signup', async (req, res) => {
     try {
@@ -23,7 +21,8 @@ router.post('/signup', async (req, res) => {
             password: hashedPassword
         });
 
-        // req.session.user = newUser;
+        req.session.user = newUser;
+        console.log(req.session.user);
 
         return res.status(201).json(newUser);
     } catch (error) {
@@ -45,7 +44,9 @@ router.post('/login', async (req, res) => {
             const passwordMatch = await bcrypt.compare(password, user.password);
 
             if (passwordMatch) {
-                // req.session.user = user; // 로그인 성공 시 세션에 사용자 정보 저장
+                req.session.user = user; // 로그인 성공 시 세션에 사용자 정보 저장
+
+                console.log(req.session.user);
                 return res.status(200).json(user);
             }
         }
