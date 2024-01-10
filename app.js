@@ -9,11 +9,17 @@ app.get('/', (req, res) => {
     res.send('Do Learn! Do Run!')
 })
 
+const classRouter=require('./routes/classes')
+app.get('/',(req,res)=>{
+    res.send('Do Learn! Do Run!')
+})
+
 // middlewares
 app.use(express.json())
 
 // router
 app.use('/users', userRouter)
+app.use('/classes',classRouter)
 
 // sequalize
 sequelize.sync()
@@ -28,3 +34,6 @@ sequelize.sync()
 app.listen(port, () => {
     console.log(`Example app listening on port ${port} `)
 })
+
+
+
