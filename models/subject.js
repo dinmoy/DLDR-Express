@@ -5,8 +5,8 @@ const Subject = (sequelize) => {
     return sequelize.define('subject', {
         id: {
             type: DataTypes.INTEGER,
-            primarykey: true,
-            allowNull: true,
+            primaryKey: true,
+            allowNull: false,
             autoIncrement: true,
         },
         name: {
