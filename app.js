@@ -3,6 +3,10 @@ const sequelize = require('./config/database')
 const app = express()
 const port = 3000
 
+// 세션
+const SEC = 1000;
+const HOUR = 60 * 60 * SEC;
+
 // routes
 const userRouter = require('./routes/user') // Adjust the path as needed
 const classRouter = require('./routes/classes')
@@ -14,8 +18,21 @@ app.get('/', (req, res) => {
     res.send('Do Learn! Do Run!')
 })
 
-// middlewares
+// 미들웨어
 app.use(express.json())
+
+// 세션 미들웨어 초기화
+app.use(
+    session({
+        secret: 'secret-key', // 세션 암호화를 위한 키
+        resave: false,
+        saveUninitialized: true,
+        cookie: {
+            maxAge: HOUR,
+        },
+    })
+);
+
 
 // router
 app.use('/users', userRouter)
