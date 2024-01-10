@@ -6,9 +6,6 @@ const { User } = require('../models')// user model
 
 const router = express.Router();
 
-// TODO: bcrypt 사용, session 사용해서 구현하기
-// TODO: 프로필 업로드 PUT method 구현하기
-
 // Multer 설정
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
@@ -48,19 +45,7 @@ router.post('/upload', upload.single('profileImage'), async (req, res) => {
     }
 });
 
-
-// Create a new user
-router.post('/', async (req, res) => {
-    try {
-        const newUser = await User.create(req.body);
-        return res.status(201).json(newUser);
-    } catch (error) {
-        console.log(error);
-        return res.status(500).json({ error: 'Error creating user' });
-    }
-});
-
-// Get all users
+// 모든 유저 조회하기
 router.get('/', async (req, res) => {
     try {
         const users = await User.findAll();
@@ -70,7 +55,7 @@ router.get('/', async (req, res) => {
     }
 });
 
-// Get a specific user by ID
+// id로 유저 조회하기
 router.get('/:id', async (req, res) => {
     const userId = req.params.id;
 
@@ -85,7 +70,7 @@ router.get('/:id', async (req, res) => {
     }
 });
 
-// Update a user by ID
+// 유저 업데이트 하기
 router.put('/:id', async (req, res) => {
     const userId = req.params.id;
 
@@ -102,7 +87,7 @@ router.put('/:id', async (req, res) => {
     }
 });
 
-// Delete a user by ID
+// 유저 삭제
 router.delete('/:id', async (req, res) => {
     const userId = req.params.id;
 
@@ -113,7 +98,7 @@ router.delete('/:id', async (req, res) => {
         }
 
         await user.destroy();
-        return res.status(204).json(); // No content
+        return res.status(204).json();
     } catch (error) {
         return res.status(500).json({ error: 'Error deleting user' });
     }
