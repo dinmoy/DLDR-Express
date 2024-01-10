@@ -24,7 +24,14 @@ const Chatroom = (sequalize) => {
                 key: 'id',
             },
         },
-        // TODO: class_id 추가하기
+        class_id: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            references: {
+                model: 'classes',
+                key: 'id',
+            }
+        },
     })
 }
 
