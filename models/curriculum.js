@@ -4,9 +4,17 @@ const Curriculum = (sequelize) => {
     return sequelize.define('curriculum', {
         id: {
             type: DataTypes.INTEGER,
-            primarykry: true,
-            allowNull: true,
+            primaryKey: true,
+            allowNull: false,
             autoIncrement: true,
+        },
+        class_id: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            references: {
+                model: 'classes',
+                key: 'id',
+            }
         },
         name: {
             type: DataTypes.STRING(255),
