@@ -33,7 +33,7 @@ const Classes = (sequelize) => {
             allowNull: false,
         },
         thumbnail: {
-            type: DataTypes.STRING(20),
+            type: DataTypes.STRING(255),
             allowNull: false,
         },
         is_deleted: {
