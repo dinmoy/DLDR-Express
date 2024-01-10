@@ -1,7 +1,7 @@
 const { DataTypes } = require('sequelize');
 
-const watchHistory = (sequelize) => {
-    return sequelize.define('watch_history', {
+const WatchHistories = (sequelize) => {
+    return sequelize.define('watch_histories', {
         id: {
             type: DataTypes.INTEGER,
             primaryKey: true,
@@ -25,10 +25,10 @@ const watchHistory = (sequelize) => {
             },
         },
         watch_date: {
-            type: DATE,
+            type: DataTypes.DATE,
             allowNull: false,
         },
     });
 };
 
-module.exports = watchHistory;
+module.exports = WatchHistories;
