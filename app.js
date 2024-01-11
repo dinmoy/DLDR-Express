@@ -17,6 +17,7 @@ const authRouter = require('./routes/auth')
 const favoriteRouter = require('./routes/favorite')
 const chatroomRouter = require('./routes/chatroom')
 const messageRouter = require('./routes/message')
+const enrollRouter = require('./routes/enroll')
 
 app.get('/', (req, res) => {
     res.send('Do Learn! Do Run!')
@@ -47,6 +48,7 @@ app.use('/auth', authRouter)
 app.use('/favorites', favoriteRouter)
 app.use('/chatrooms', chatroomRouter)
 app.use('/messages', messageRouter)
+app.use('/enroll', enrollRouter)
 
 // sequalize
 sequelize.sync()
