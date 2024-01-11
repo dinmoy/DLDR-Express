@@ -2,7 +2,7 @@ const express = require('express')
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
-const {User, Classes} = require('../models')// user model
+const {User, Classes, Favorite} = require('../models')// user model
 
 const router = express.Router();
 
@@ -83,6 +83,18 @@ router.get('/:id/classes', async (req, res) => {
 
         // 유저가 선생님일 때
         const classes = await Classes.findAll({where: {user_id: userId}})
+        return res.status(200).json(classes);
+    } catch (error) {
+        return res.status(500).json({error: 'Error finding classes'})
+    }
+})
+
+// 유저의 favorites 조회하기
+router.get('/:id/favorites', async (req, res) => {
+    const userId = req.params.id;
+
+    try {
+        const classes = await Favorite.findAll({where: {user_id: userId}})
         return res.status(200).json(classes);
     } catch (error) {
         return res.status(500).json({error: 'Error finding classes'})
