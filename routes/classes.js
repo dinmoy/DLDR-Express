@@ -1,15 +1,30 @@
-const express = require('express')
 const { Op } = require('sequelize')
+const express = require('express')
 const { Classes, User, Review, Curriculum, Chatroom, Favorite } = require('../models')
 
 const router = express.Router();
 
 // read all classes
 router.get('/', async (req, res) => {
+    const keyword = req.query.keyword;
+    let classes;
+
     try {
-        const classes = await Classes.findAll();
+        if(keyword){
+            classes = await Classes.findAll({
+                where: {
+                    name: {
+                        [Op.like]: `%${keyword}%`
+                    }
+                }
+            });
+        }
+        else{
+            classes=await Classes.findAll();
+        }        
         return res.status(200).json(classes);
     } catch (error) {
+        console.log(error);
         return res.status(500).json({ error: 'Error reading classes' });
     }
 });
