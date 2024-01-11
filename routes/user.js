@@ -3,7 +3,7 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 const { Op } = require('sequelize');
-const {User, Classes, Favorite, Chatroom, EnrolledClasses} = require('../models')// user model
+const {User, Classes, Favorite, Chatroom, EnrolledClasses, WatchHistories, Curriculum} = require('../models')// user model
 
 const router = express.Router();
 
@@ -155,7 +155,46 @@ router.get('/:id/enrolled_class', async (req, res) => {
     } catch (error) {
         return res.status(500).json({ error: 'Error finding Classes' });
     }
-});
+})
+
+// 유저의 최근 시청 기록 조회하기
+router.get('/:id/watch_histories', async (req, res) => {
+    const userId = req.params.id
+    try {
+        const histories = await WatchHistories.findAll({
+            where: {
+                user_id: userId
+            },
+            order: [['createdAt', 'DESC']]
+        })
+
+
+        const curriculumsPromises = histories.map(async histories => {
+            return await Curriculum.findOne({
+                where: {
+                    id: histories.curriculum_id
+                }
+            })
+        })
+
+        const curriculums = await Promise.all(curriculumsPromises)
+
+        const classesPromise = curriculums.map(async curriculum => {
+            return await Classes.findOne({
+                where: {
+                    id: curriculum.class_id
+                }
+            })
+        })
+
+        const classes = await Promise.all(classesPromise)
+
+        return res.status(200).json(classes);
+    } catch (error) {
+        console.log(error)
+        return res.status(500).json({ error: 'Error finding Histories' });
+    }
+})
 
 // 유저 업데이트 하기
 router.put('/:id', async (req, res) => {
