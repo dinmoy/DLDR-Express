@@ -116,7 +116,7 @@ router.get('/:id', async (req, res) => {
         if (curriculum) {
             res.status(200).json({ success: true, curriculum });
         } else {
-            res.status(404).json({ success: false, message: 'Curriculum not found' });
+            res.status(404).json({ success: false, message: 'Curriculum not found'   });
         }
     } catch (error) {
         console.error(error);
