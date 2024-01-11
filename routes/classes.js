@@ -1,14 +1,30 @@
+const { Op } = require('sequelize')
 const express = require('express')
-const { Classes, Review, Curriculum , Chatroom , Favorite } = require('../models')
+const { Classes, User, Review, Curriculum, Chatroom, Favorite } = require('../models')
 
 const router = express.Router();
 
 // read all classes
 router.get('/', async (req, res) => {
+    const keyword = req.query.keyword;
+    let classes;
+
     try {
-        const classes = await Classes.findAll();
+        if(keyword){
+            classes = await Classes.findAll({
+                where: {
+                    name: {
+                        [Op.like]: `%${keyword}%`
+                    }
+                }
+            });
+        }
+        else{
+            classes=await Classes.findAll();
+        }        
         return res.status(200).json(classes);
     } catch (error) {
+        console.log(error);
         return res.status(500).json({ error: 'Error reading classes' });
     }
 });
@@ -61,7 +77,7 @@ router.delete('/:id', async (req, res) => {
 router.get('/:id/reviews', async (req, res) => {
     const classId = req.params.id;
     try {
-        const classReviews = await Review.findAll({ where: {class_id: classId } });
+        const classReviews = await Review.findAll({ where: { class_id: classId } });
         return res.status(200).json(classReviews);
     } catch (error) {
         console.error(error);
@@ -73,7 +89,7 @@ router.get('/:id/reviews', async (req, res) => {
 router.get('/:id/curriculums', async (req, res) => {
     const classId = req.params.id;
     try {
-        const classCurriculums=await Curriculum.findAll({where:{class_id:classId}});
+        const classCurriculums = await Curriculum.findAll({ where: { class_id: classId } });
         return res.status(200).json(classCurriculums);
     } catch (error) {
         console.log(error);
@@ -83,9 +99,9 @@ router.get('/:id/curriculums', async (req, res) => {
 
 //read one class's all chatrooms
 router.get('/:id/chatrooms', async (req, res) => {
-    const classId= req.params.id;
+    const classId = req.params.id;
     try {
-        const classChatrooms = await Chatroom.findAll({where:{class_id:classId}});
+        const classChatrooms = await Chatroom.findAll({ where: { class_id: classId } });
         return res.status(200).json(classChatrooms);
     } catch (error) {
         return res.status(500).json({ error: 'Error reading chatrooms' })
@@ -93,14 +109,16 @@ router.get('/:id/chatrooms', async (req, res) => {
 });
 
 //read class's favorite
-router.get('/:id/favorite',async(req,res)=>{
-    const classId=req.params.id;
-    try{
-        const classFavorite=await Favorite.findAll({where:{class_id:classId}});
+router.get('/:id/favorite', async (req, res) => {
+    const classId = req.params.id;
+    try {
+        const classFavorite = await Favorite.findAll({ where: { class_id: classId } });
         return res.status(200).json(classFavorite);
-    }catch(error){
-        return res.status(500).json({error: 'Error reading favorites'});
+    } catch (error) {
+        return res.status(500).json({ error: 'Error reading favorites' });
     }
 });
+
+
 
 module.exports = router;
