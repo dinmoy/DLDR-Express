@@ -3,7 +3,7 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 const { Op } = require('sequelize');
-const {User, Classes, Favorite, Chatroom} = require('../models')// user model
+const {User, Classes, Favorite, Chatroom, EnrolledClasses} = require('../models')// user model
 
 const router = express.Router();
 
@@ -120,6 +120,32 @@ router.get('/:id/chatrooms', async (req, res) => {
         return res.status(500).json({error: 'Error finding Chatrooms'})
     }
 })
+
+// 유저의 enrolled_class 조회하기
+router.get('/:id/enrolled_class', async (req, res) => {
+    const userId = req.params.id;
+
+    try {
+        const enrolledClasses = await EnrolledClasses.findAll({
+            where: {
+                user_id: userId
+            }
+        });
+
+        const classPromises = enrolledClasses.map(async enrolledClass => {
+            return await Classes.findOne({
+                where: {
+                    id: enrolledClass.class_id
+                }
+            });
+        });
+
+        const classes = await Promise.all(classPromises);
+        return res.status(200).json(classes);
+    } catch (error) {
+        return res.status(500).json({ error: 'Error finding Classes' });
+    }
+});
 
 // 유저 업데이트 하기
 router.put('/:id', async (req, res) => {
