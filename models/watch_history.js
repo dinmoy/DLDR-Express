@@ -23,11 +23,7 @@ const WatchHistories = (sequelize) => {
                 model: 'curriculums',
                 key: 'id',
             },
-        },
-        watch_date: {
-            type: DataTypes.DATE,
-            allowNull: false,
-        },
+        }
     });
 };
 

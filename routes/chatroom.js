@@ -1,5 +1,5 @@
 const express = require('express')
-const {Chatroom, User} = require('../models')// user model
+const {Chatroom, Message} = require('../models')// user model
 
 const router = express.Router();
 
@@ -19,6 +19,28 @@ router.post('/', async (req, res) => {
         return res.status(201).json(newChatroom)
     } catch (error) {
         return res.status(500).json('Error creating ChatRooms')
+    }
+})
+
+router.get('/:id/messages', async (req, res) => {
+    try {
+        const existChatroom = await Chatroom.findOne({
+            where: req.body
+        })
+
+        if (!existChatroom) {
+            return res.status(404).json({error: 'Cannot find chatroom'})
+        }
+
+        const messages = await Message.findAll({
+            where: {
+                chatroom_id: req.params.id
+            }
+        })
+
+        return res.status(200).json(messages)
+    } catch (error) {
+        return res.status(500).json('Error reading ChatRoom\'s messages')
     }
 })
 

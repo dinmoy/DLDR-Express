@@ -32,6 +32,10 @@ const Curriculum = (sequelize) => {
             type: DataTypes.STRING(255),
             allowNull: false,
         },
+        introduction: {
+            type: DataTypes.STRING(500),
+            allowNull: false,
+        },
     });
 };
 
