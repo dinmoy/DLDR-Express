@@ -75,13 +75,11 @@ router.get('/:id', async (req, res) => {
     }
 });
 
-// 유저의 클래스 조회하기
+// 유저가 만든 클래스 조회하기
 router.get('/:id/classes', async (req, res) => {
     const userId = req.params.id;
 
     try {
-        // TODO: 유저가 학생일 때
-
         // 유저가 선생님일 때
         const classes = await Classes.findAll({where: {user_id: userId}})
         return res.status(200).json(classes);
@@ -96,6 +94,18 @@ router.get('/:id/favorites', async (req, res) => {
 
     try {
         const favorites = await Favorite.findAll({where: {user_id: userId}})
+
+        const classPromises = favorites.map(async favorite => {
+            return await Classes.findOne({
+                where: {
+                    id: favorite.class_id
+                }
+            });
+        });
+
+        const classes = await Promise.all(classPromises);
+        return res.status(200).json(classes);
+
         return res.status(200).json(favorites);
     } catch (error) {
         return res.status(500).json({error: 'Error finding Favorites'})
