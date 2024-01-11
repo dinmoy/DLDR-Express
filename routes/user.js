@@ -2,7 +2,8 @@ const express = require('express')
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
-const {User, Classes, Favorite} = require('../models')// user model
+const { Op } = require('sequelize');
+const {User, Classes, Favorite, Chatroom} = require('../models')// user model
 
 const router = express.Router();
 
@@ -94,10 +95,29 @@ router.get('/:id/favorites', async (req, res) => {
     const userId = req.params.id;
 
     try {
-        const classes = await Favorite.findAll({where: {user_id: userId}})
-        return res.status(200).json(classes);
+        const favorites = await Favorite.findAll({where: {user_id: userId}})
+        return res.status(200).json(favorites);
     } catch (error) {
-        return res.status(500).json({error: 'Error finding classes'})
+        return res.status(500).json({error: 'Error finding Favorites'})
+    }
+})
+
+// 유저의 chatrooms 조회하기
+router.get('/:id/chatrooms', async (req, res) => {
+    const userId = req.params.id;
+
+    try {
+        const chatrooms = await Chatroom.findAll({
+            where: {
+                [Op.or]: {
+                    teacher_user_id: userId,
+                    student_user_id: userId
+                }
+            }
+        })
+        return res.status(200).json(chatrooms);
+    } catch (error) {
+        return res.status(500).json({error: 'Error finding Chatrooms'})
     }
 })
 
