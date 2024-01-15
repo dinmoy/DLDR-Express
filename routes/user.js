@@ -11,7 +11,7 @@ const router = express.Router();
 router.get('/', async (req, res) => {
     try {
         const users = await User.findAll();
-        return res.status(200).json({success: true},users);
+        return res.status(200).json(users);
     } catch (error) {
         return res.status(500).json({success: false,error: 'Error fetching users'});
     }

@@ -9,6 +9,7 @@ const router = express.Router();
 router.get('/', async (req, res) => {
     const keyword = req.query.keyword;
     const sort = req.query.sort;
+
     try {
         let classes;
         if (keyword) {
@@ -30,7 +31,9 @@ router.get('/', async (req, res) => {
                     group: ['class_id'],
                     order: [[sequelize.literal('classCount'), 'DESC']],
                 });
+    
                 const classIds = popularClassIds.map((item) => item.class_id);
+    
                 classes = await Classes.findAll({
                     where: {
                         id: {
@@ -43,16 +46,18 @@ router.get('/', async (req, res) => {
                 classes = await Classes.findAll({
                     order: [['createdAt', 'DESC']],
                 });
-            } else{
-                classes=await Classes.findAll();
             }
-        return res.status(200).json(classes);
+           
+    }else{
+        classes=await Classes.findAll();
     }
+    return res.status(200).json(classes);
     }catch (error) {
         console.log(error);
         return res.status(500).json({ error: 'Error reading classes' });
     }
 });
+
 
 //read one class's all reviews
 router.get('/:id/reviews', async (req, res) => {

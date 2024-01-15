@@ -31,7 +31,7 @@ router.post('/upload', upload.single('videofile'), async (req, res) => {
         const curriculumId = req.body.curriculumId;
         const curriculum = await Curriculum.findByPk(curriculumId);
         if (curriculum) {
-            Curriculum.videofile = path.relative(path.join(__dirname, '..'), filePath);
+            curriculum.videofile = path.relative(path.join(__dirname, '..'), filePath);
             await curriculum.save();
             res.status(200).json({
                 success: true,
