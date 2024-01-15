@@ -4,13 +4,59 @@ const { Classes, User, Review, Curriculum, Chatroom, Favorite } = require('../mo
 
 const router = express.Router();
 
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        const uploadDir = path.join(__dirname, '../uploads/video');
+        if (!fs.existsSync(uploadDir)) {
+            fs.mkdirSync(uploadDir, { recursive: true });
+        }
+        cb(null, uploadDir);
+    },
+    filename: (req, file, cb) => {
+        const fileName = `${Date.now()}_${file.originalname}`;
+        cb(null, fileName);
+    },
+});
+
+const upload = multer({ storage });
+
+// upload video
+router.post('/upload', upload.single('videofile'), async (req, res) => {
+    try {
+        const { filename, path: filePath } = req.file;
+
+        const classId = req.body.classId;
+        const classes = await Classes.findByPk(classId);
+        if (classes) {
+            classes.videofile = path.relative(path.join(__dirname, '..'), filePath);
+            await classes.save();
+            res.status(200).json({
+                success: true,
+                message: 'Video uploaded successfully',
+                videofile: classes.videofile
+            });
+        } else {
+            res.status(404).json({
+                success: false,
+                message: 'Class not found'
+            });
+        }
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({
+            success: false,
+            message: 'Error uploading video'
+        });
+    }
+});
+
 // read all classes
 router.get('/', async (req, res) => {
     const keyword = req.query.keyword;
     let classes;
 
     try {
-        if(keyword){
+        if (keyword) {
             classes = await Classes.findAll({
                 where: {
                     name: {
@@ -19,9 +65,9 @@ router.get('/', async (req, res) => {
                 }
             });
         }
-        else{
-            classes=await Classes.findAll();
-        }        
+        else {
+            classes = await Classes.findAll();
+        }
         return res.status(200).json(classes);
     } catch (error) {
         console.log(error);
@@ -118,7 +164,6 @@ router.get('/:id/favorite', async (req, res) => {
         return res.status(500).json({ error: 'Error reading favorites' });
     }
 });
-
 
 
 module.exports = router;
