@@ -6,10 +6,9 @@ const { Curriculum } = require('../models');
 
 const router = express.Router();
 
-//update video
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
-        const uploadDir = path.join(__dirname, '../uploads/video');
+        const uploadDir = path.join(__dirname, '../uploads/videos');
         if (!fs.existsSync(uploadDir)) {
             fs.mkdirSync(uploadDir, { recursive: true });
         }
@@ -31,12 +30,12 @@ router.post('/upload', upload.single('videofile'), async (req, res) => {
         const curriculumId = req.body.curriculumId;
         const curriculum = await Curriculum.findByPk(curriculumId);
         if (curriculum) {
-            curriculum.videofile = path.relative(path.join(__dirname, '..'), filePath);
+            curriculum.video = path.relative(path.join(__dirname, '..'), filePath);
             await curriculum.save();
             res.status(200).json({
                 success: true,
                 message: 'Video uploaded successfully',
-                videofile: curriculum.videofile
+                video: curriculum.video
             });
         } else {
             res.status(404).json({
