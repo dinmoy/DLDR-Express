@@ -1,4 +1,5 @@
 const { Op } = require('sequelize')
+const sequelize=require('sequelize')
 const express = require('express')
 const { Classes, User, Review, Curriculum, Chatroom, Favorite } = require('../models')
 
@@ -7,10 +8,9 @@ const router = express.Router();
 // read all classes
 router.get('/', async (req, res) => {
     const keyword = req.query.keyword;
-    const sort=req.query.sort;
-    let classes;
-
+    const sort = req.query.sort;
     try {
+        let classes;
         if (keyword) {
             classes = await Classes.findAll({
                 where: {
@@ -19,67 +19,40 @@ router.get('/', async (req, res) => {
                     }
                 }
             });
-        }
-        else {
+        } else {
             classes = await Classes.findAll();
         }
-        if(sort==='new'){
-            classes=await Classes.findAll({
-                    order: [['createdAt','DESC']],
-            });
-        }else if(sort==='popular'){
-            
-        }
+
+        if (sort) {
+            if (sort === 'popular') {
+                const popularClassIds = await Favorite.findAll({
+                    attributes: ['class_id',[sequelize.fn('COUNT', sequelize.col('class_id')), 'classCount']],
+                    group: ['class_id'],
+                    order: [[sequelize.literal('classCount'), 'DESC']],
+                });
+                const classIds = popularClassIds.map((item) => item.class_id);
+                classes = await Classes.findAll({
+                    where: {
+                        id: {
+                            [Op.in]: classIds,
+                        },
+                    },
+                    order: [[sequelize.literal(`FIELD(id, ${classIds.join(',')})`)]],
+                });
+            } else if (sort === 'new') {
+                classes = await Classes.findAll({
+                    order: [['createdAt', 'DESC']],
+                });
+            } else{
+                classes=await Classes.findAll();
+            }
         return res.status(200).json(classes);
-    } catch (error) {
+    }
+    }catch (error) {
         console.log(error);
         return res.status(500).json({ error: 'Error reading classes' });
     }
 });
-
-// create class
-router.post('/', async (req, res) => {
-    try {
-        const newClass = await Classes.create(req.body);
-        return res.status(201).json(newClass);
-    } catch (error) {
-        console.log(error);
-        return res.status(500).json({ error: 'Error creating class' });
-    }
-});
-
-// update class by id 
-router.put('/:id', async (req, res) => {
-    const classId = req.params.id;
-    try {
-        const updatedClass = await Classes.findByPk(classId);
-        if (!updatedClass) {
-            return res.status(404).json({ error: 'Class Not Found' });
-        }
-        await updatedClass.update(req.body);
-        return res.status(200).json(updatedClass);
-    } catch (error) {
-        console.log(error);
-        return res.status(500).json({ error: 'Error updating class' });
-    }
-});
-
-// delete class by id
-router.delete('/:id', async (req, res) => {
-    const classId = req.params.id;
-    try {
-        const deletedClass = await Classes.findByPk(classId);
-        if (!deletedClass) {
-            return res.status(404).json({ error: 'Class Not Found' });
-        }
-        await deletedClass.destroy();
-        return res.status(204).json();
-    } catch (error) {
-        console.log(error);
-        return res.status(500).json({ error: 'Error deleting class' });
-    }
-});
-
 
 //read one class's all reviews
 router.get('/:id/reviews', async (req, res) => {
