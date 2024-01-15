@@ -9,6 +9,7 @@ const router = express.Router();
 router.get('/', async (req, res) => {
     const keyword = req.query.keyword;
     const sort = req.query.sort;
+    const limit = req.query.limit ? parseInt(req.query.limit, 10) : undefined; 
 
     try {
         let classes;
@@ -41,10 +42,12 @@ router.get('/', async (req, res) => {
                         },
                     },
                     order: [[sequelize.literal(`FIELD(id, ${classIds.join(',')})`)]],
+                    limit: limit,
                 });
             } else if (sort === 'new') {
                 classes = await Classes.findAll({
                     order: [['createdAt', 'DESC']],
+                    limit:limit,
                 });
             }
            
