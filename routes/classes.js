@@ -23,13 +23,13 @@ router.get('/', async (req, res) => {
         else {
             classes = await Classes.findAll();
         }
-        // if(sort){
-        //     classes=await Classes.findAll({
-        //         /*where: {
-        //             sort:
-        //         }*/
-        //     })
-        // }
+        if(sort==='new'){
+            classes=await Classes.findAll({
+                    order: [['createdAt','DESC']],
+            });
+        }else if(sort==='popular'){
+            
+        }
         return res.status(200).json(classes);
     } catch (error) {
         console.log(error);
