@@ -77,6 +77,15 @@ router.post('/', async (req, res) => {
     }
 });
 
+// 모든 커리큘럼 조회
+router.get('/',async(req,res)=>{
+    try{
+        const Curriculums=await Curriculums.findAll();
+        return res.status(200).json();
+    }catch(error){
+        return res.status(500).json({ error: 'Error reading all curriculums'});
+    }
+});
 // 특정 커리큘럼 업데이트
 router.put('/:id', async (req, res) => {
     try {
