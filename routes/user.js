@@ -3,7 +3,7 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 const { Op } = require('sequelize');
-const {User, Classes, Favorite, Chatroom, EnrolledClasses, WatchHistories, Curriculum} = require('../models')// user model
+const {User, Classes, Favorite, Chatroom, EnrolledClasses, WatchHistories, Curriculum, Message} = require('../models')// user model
 
 const router = express.Router();
 
@@ -117,16 +117,51 @@ router.get('/:id/chatrooms', async (req, res) => {
     const userId = req.params.id;
 
     try {
-        const chatrooms = await Chatroom.findAll({
+        const chatroomlist = await Chatroom.findAll({
             where: {
-                [Op.or]: {
-                    teacher_user_id: userId,
-                    student_user_id: userId
-                }
+                student_user_id:userId
             }
-        })
-        return res.status(200).json(chatrooms);
+        });
+        
+        const chatroomPromises=chatroomlist.map(async chatroom =>{
+            const recentMessagePromise=Message.findOne({
+                where:{
+                    chatroom_id:chatroom.id
+                },
+                order:[['createdAt','DESC']],
+                limit:1
+            });
+
+            const teacherPromise=User.findOne({
+                where:{
+                    id:chatroom.teacher_user_id
+                }
+                
+            });
+            const [recentMessage, teacher] = await Promise.all([recentMessagePromise, teacherPromise]);
+            
+            return {
+                id: chatroom.id,
+                teacher: {
+                    id: teacher.id,
+                    name: teacher.name,
+                    profile_img: teacher.profile_img
+                },
+                student_user_id: userId,
+                class_id: chatroom.class_id,
+                recent_message: recentMessage ? {
+                    content: recentMessage.content,
+                    createdAt: recentMessage.createdAt
+                } : null,
+                createdAt: chatroom.createdAt,
+                updatedAt: chatroom.updatedAt
+            };
+
+        });
+        const result = await Promise.all(chatroomPromises);
+        return res.status(200).json(result);
     } catch (error) {
+        console.log(error)
         return res.status(500).json({error: 'Error finding Chatrooms'})
     }
 })

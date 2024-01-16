@@ -7,10 +7,11 @@ const router = express.Router();
 
 // read all classes
 router.get('/', async (req, res) => {
+    const subjectId=req.query.subjectId;
     const keyword = req.query.keyword;
     const sort = req.query.sort;
     const limit = req.query.limit ? parseInt(req.query.limit, 10) : undefined; 
-
+   
     try {
         let classes;
         if (keyword) {
@@ -50,7 +51,15 @@ router.get('/', async (req, res) => {
                     limit:limit,
                 });
             }
-           
+    }else{
+        classes=await Classes.findAll();
+    }
+    if(subjectId){
+        classes=await Classes.findAll({
+            where:{
+                subject_id:subjectId
+            }
+        });
     }else{
         classes=await Classes.findAll();
     }
