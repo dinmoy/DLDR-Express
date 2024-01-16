@@ -27,7 +27,7 @@ app.get('/', (req, res) => {
 
 // 미들웨어
 app.use(express.json())
-app.use(express.static(path.join(__dirname, 'uploads')))
+app.use(express.static(path.join(__dirname, '/')))
 
 // 세션 미들웨어 초기화
 app.use(
