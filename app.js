@@ -2,6 +2,7 @@ const express = require('express')
 const session = require('express-session');
 const sequelize = require('./config/database')
 const app = express()
+const path = require('path')
 const port = 3000
 
 // 세션
@@ -26,6 +27,7 @@ app.get('/', (req, res) => {
 
 // 미들웨어
 app.use(express.json())
+app.use(express.static(path.join(__dirname, 'uploads')))
 
 // 세션 미들웨어 초기화
 app.use(

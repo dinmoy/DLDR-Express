@@ -3,6 +3,16 @@ const { Favorite } = require('../models')// user model
 
 const router = express.Router();
 
+router.get('/',async(req,res)=>{
+    try{
+        const favorites=await Favorite.findAll()
+        return res.status(200).json(favorites)
+    }catch(error){
+        console.log(error)
+        return res.status(500).json({error: 'Error reading all favorites'})
+    }
+})
+
 router.post('/', async (req, res) => {
     try {
         const newFavorite = await Favorite.create({
