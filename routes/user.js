@@ -141,20 +141,13 @@ router.get('/:id/chatrooms', async (req, res) => {
             const [recentMessage, teacher] = await Promise.all([recentMessagePromise, teacherPromise]);
             
             return {
-                id: chatroom.id,
+                ...chatroom.dataValues,
                 teacher: {
-                    id: teacher.id,
-                    name: teacher.name,
-                    profile_img: teacher.profile_img
+                    ...teacher.dataValues
                 },
-                student_user_id: userId,
-                class_id: chatroom.class_id,
                 recent_message: recentMessage ? {
-                    content: recentMessage.content,
-                    createdAt: recentMessage.createdAt
+                    ...recentMessage.dataValues
                 } : null,
-                createdAt: chatroom.createdAt,
-                updatedAt: chatroom.updatedAt
             };
 
         });
