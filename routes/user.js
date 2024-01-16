@@ -82,7 +82,18 @@ router.get('/:id/classes', async (req, res) => {
     try {
         // 유저가 선생님일 때
         const classes = await Classes.findAll({where: {user_id: userId}})
-        return res.status(200).json(classes);
+
+        const user= await User.findByPk(userId);
+
+        const data = classes.map((oneClass, index) => {
+            return {
+                ...oneClass.dataValues,
+                teacher: {
+                    ...user.dataValues
+                }
+            };
+        });
+        return res.status(200).json(data);
     } catch (error) {
         return res.status(500).json({error: 'Error finding classes'})
     }
