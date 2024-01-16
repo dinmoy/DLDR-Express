@@ -20,6 +20,7 @@ const chatroomRouter = require('./routes/chatroom')
 const messageRouter = require('./routes/message')
 const enrollRouter = require('./routes/enroll')
 const watchHistoryRouter = require('./routes/watch_history')
+const subjectRouter = require('./routes/subject')
 
 app.get('/', (req, res) => {
     res.send('Do Learn! Do Run!')
@@ -53,6 +54,7 @@ app.use('/chatrooms', chatroomRouter)
 app.use('/messages', messageRouter)
 app.use('/enroll', enrollRouter)
 app.use('/watch_histories', watchHistoryRouter)
+app.use('/subjects', subjectRouter)
 
 // sequalize
 sequelize.sync()
