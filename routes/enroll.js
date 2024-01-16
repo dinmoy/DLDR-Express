@@ -3,20 +3,6 @@ const { EnrolledClasses, Classes } = require('../models')
 
 const router = express.Router();
 
-router.get('/:id',async(req,res)=>{
-    const userId=req.params.id;
-    try{
-        const enrolledClasses=await EnrolledClasses.findAll({
-            where: {
-                user_id: userId,
-              },
-        });
-        return res.status(200).json(enrolledClasses);
-    }catch(error){
-        console.log(error);
-        return res.status(500).json({success:false, message: 'Error reading enrolled classes'});    
-    }
-})
 router.post('/', async (req, res) => {
     try {
         const { user_id, class_id } = req.body;
