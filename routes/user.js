@@ -150,9 +150,31 @@ router.get('/:id/enrolled_class', async (req, res) => {
             });
         });
 
-        const classes = await Promise.all(classPromises);
-        return res.status(200).json(classes);
+        const foundClasses = await Promise.all(classPromises);
+
+        // 클래스에 해당하는 유저 찾기
+        const userPromises = foundClasses.map(async oneClass => {
+            return await User.findOne({
+                where: {
+                    id: oneClass.user_id
+                }
+            })
+        })
+
+        // 유저 데이터로 만들기 (배열)
+        const users = await Promise.all(userPromises)
+
+        // teacher라는 칼럼 추가 ]
+        const result = foundClasses.map((el, index) => {
+            return {
+                ...el.dataValues,
+                teacher: users[index]
+            }
+        })
+
+        return res.status(200).json(result);
     } catch (error) {
+        console.log(error)
         return res.status(500).json({ error: 'Error finding Classes' });
     }
 })
