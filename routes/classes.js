@@ -4,7 +4,7 @@ const express = require('express')
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
-const { Classes, User, Review, Curriculum, Chatroom, Favorite, WatchHistories } = require('../models');
+const { Classes, User, Review, Curriculum, Chatroom, Favorite, WatchHistories, Test } = require('../models');
 const { createCipheriv } = require('crypto');
 
 const router = express.Router();
@@ -186,6 +186,22 @@ router.get('/:id/favorite', async (req, res) => {
         return res.status(500).json({ error: 'Error reading favorites' });
     }
 });
+
+//read one class's all test
+router.get('/:id/tests',async(req,res)=>{
+    const classId=req.params.id;
+    try{
+        const classCurriculums=await Curriculum.findAll({where: {class_id:classId}});
+        const curriculumId=classCurriculums.map(curriculum => curriculum.id)
+        const classTest=await Test.findAll({where: {curriculum_id:curriculumId} });
+        return res.status(200).json(classTest);
+    }catch(error){
+        console.error.log(error);
+        return res.status(500).json({error:'Error reading all test'})
+    }
+})
+
+
 
 router.put('/:id',async (req,res)=>{
     const classId=req.params.id;
