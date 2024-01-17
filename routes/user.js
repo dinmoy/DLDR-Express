@@ -105,19 +105,32 @@ router.get('/:id/favorites', async (req, res) => {
 
     try {
         const favorites = await Favorite.findAll({where: {user_id: userId}})
-
-        const classPromises = favorites.map(async favorite => {
-            return await Classes.findOne({
+    
+        const classPromises = favorites.map(async favorite => { 
+            const favoriteClass=await Classes.findOne({
                 where: {
                     id: favorite.class_id
                 }
             });
+            const teacherPromise=await User.findOne({
+                where:{
+                    id: favoriteClass.id
+                }
+            });
+            const [favoriteclass,teacher]=await Promise.all([favoriteClass,teacherPromise]);
+            return {
+                ...favorite.dataValues,
+                teacher:{
+                    ...teacher.dataValues
+                },
+                class:{
+                    ...favoriteclass.dataValues
+                }
+            };
         });
 
         const classes = await Promise.all(classPromises);
         return res.status(200).json(classes);
-
-        return res.status(200).json(favorites);
     } catch (error) {
         return res.status(500).json({error: 'Error finding Favorites'})
     }
@@ -142,19 +155,35 @@ router.get('/:id/chatrooms', async (req, res) => {
                 order:[['createdAt','DESC']],
                 limit:1
             });
-
+            
+            const studentPromise=User.findOne({
+                where:{
+                    id:chatroom.student_user_id
+                }
+            });
             const teacherPromise=User.findOne({
                 where:{
                     id:chatroom.teacher_user_id
                 }
                 
             });
-            const [recentMessage, teacher] = await Promise.all([recentMessagePromise, teacherPromise]);
+            const classPromise=Classes.findOne({
+                where:{
+                    id:chatroom.class_id
+                }
+            });
+            const [recentMessage, teacher,student, classes] = await Promise.all([recentMessagePromise,teacherPromise, studentPromise,classPromise]);
             
             return {
                 ...chatroom.dataValues,
                 teacher: {
                     ...teacher.dataValues
+                },
+                user:{
+                    ...student.dataValues
+                },
+                class:{
+                    ...classes.dataValues
                 },
                 recent_message: recentMessage ? {
                     ...recentMessage.dataValues
@@ -228,28 +257,32 @@ router.get('/:id/watch_histories', async (req, res) => {
             },
             order: [['createdAt', 'DESC']]
         })
-
-
-        const curriculumsPromises = histories.map(async histories => {
-            return await Curriculum.findOne({
-                where: {
-                    id: histories.curriculum_id
+        const curriculumsPromises=histories.map(async histories => {
+            const curriculums=await Curriculum.findOne({
+                where:{
+                    id:histories.curriculum_id
                 }
-            })
-        })
-
-        const curriculums = await Promise.all(curriculumsPromises)
-
-        const classesPromise = curriculums.map(async curriculum => {
-            return await Classes.findOne({
-                where: {
-                    id: curriculum.class_id
+            });
+            const classPromise=await Classes.findOne({
+                where:{
+                    id:curriculums.class_id
                 }
-            })
+            });
+            const teacherPromise=await User.findOne({
+                where:{
+                    id:classPromise.user_id
+                }
+            });
+            const [classes,teacher]=await Promise.all([classPromise,teacherPromise]);
+            return {
+                ...histories.dataValues,
+                teacher:{
+                    ...teacher.dataValues
+                },
+                ...classes.dataValues
+            }
         })
-
-        const classes = await Promise.all(classesPromise)
-
+        const classes = await Promise.all(curriculumsPromises)
         return res.status(200).json(classes);
     } catch (error) {
         console.log(error)

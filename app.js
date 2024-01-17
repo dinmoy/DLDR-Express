@@ -21,7 +21,7 @@ const messageRouter = require('./routes/message')
 const enrollRouter = require('./routes/enroll')
 const watchHistoryRouter = require('./routes/watch_history')
 const subjectRouter = require('./routes/subject')
-
+const testRouter=require('./routes/test')
 app.get('/', (req, res) => {
     res.send('Do Learn! Do Run!')
 })
@@ -55,6 +55,7 @@ app.use('/messages', messageRouter)
 app.use('/enroll', enrollRouter)
 app.use('/watch_histories', watchHistoryRouter)
 app.use('/subjects', subjectRouter)
+app.use('/tests',testRouter)
 
 // sequalize
 sequelize.sync()
