@@ -138,6 +138,18 @@ router.get('/', async (req, res) => {
     }
 });
 
+router.get('/:id', async (req, res) => {
+    try {
+        const id = req.params.id;
+
+        const foundClass = await Classes.findByPk(id);
+
+        res.status(200).json(foundClass);
+    } catch (error) {
+        res.status(500).json({ error: 'Error reading class'})
+    }
+})
+
 
 //read one class's all reviews
 router.get('/:id/reviews', async (req, res) => {
