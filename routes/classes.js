@@ -149,11 +149,10 @@ router.get('/:id/reviews', async (req, res) => {
     }
 });
 
-//isWated X
 //read one class's all curriculums
 router.get('/:id/curriculums', async (req, res) => {
     const classId = req.params.id;
-    const userId = req.body.userId; 
+    const userId = req.query.userId; 
     try {
         const classCurriculums = await Curriculum.findAll({ where: { class_id: classId } });
         if (userId) {
@@ -163,7 +162,6 @@ router.get('/:id/curriculums', async (req, res) => {
                     curriculum_id:classCurriculums.map(curriculum=>curriculum.id)
                 }
             });
-
             const WatchStatus=classCurriculums.map(curriculum=>{
                 const watchedCurriculum=histories.find(history => history.curriculum_id === curriculum.id);
                 return {
