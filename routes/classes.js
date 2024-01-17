@@ -138,6 +138,15 @@ router.get('/', async (req, res) => {
     }
 });
 
+router.post('/', async (req, res) => {
+    try {
+        const newClass = await Classes.create(req.body);
+        return res.status(201).json(newClass);
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({ error: 'Error creating class' });
+    }
+});
 
 //read one class's all reviews
 router.get('/:id/reviews', async (req, res) => {

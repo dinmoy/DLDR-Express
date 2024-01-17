@@ -131,8 +131,6 @@ router.get('/:id/favorites', async (req, res) => {
 
         const classes = await Promise.all(classPromises);
         return res.status(200).json(classes);
-
-        return res.status(200).json(favorites);
     } catch (error) {
         return res.status(500).json({error: 'Error finding Favorites'})
     }
@@ -259,28 +257,32 @@ router.get('/:id/watch_histories', async (req, res) => {
             },
             order: [['createdAt', 'DESC']]
         })
-
-
-        const curriculumsPromises = histories.map(async histories => {
-            return await Curriculum.findOne({
-                where: {
-                    id: histories.curriculum_id
+        const curriculumsPromises=histories.map(async histories => {
+            const curriculums=await Curriculum.findOne({
+                where:{
+                    id:histories.curriculum_id
                 }
-            })
-        })
-
-        const curriculums = await Promise.all(curriculumsPromises)
-
-        const classesPromise = curriculums.map(async curriculum => {
-            return await Classes.findOne({
-                where: {
-                    id: curriculum.class_id
+            });
+            const classPromise=await Classes.findOne({
+                where:{
+                    id:curriculums.class_id
                 }
-            })
+            });
+            const teacherPromise=await User.findOne({
+                where:{
+                    id:classPromise.user_id
+                }
+            });
+            const [classes,teacher]=await Promise.all([classPromise,teacherPromise]);
+            return {
+                ...histories.dataValues,
+                teacher:{
+                    ...teacher.dataValues
+                },
+                ...classes.dataValues
+            }
         })
-
-        const classes = await Promise.all(classesPromise)
-
+        const classes = await Promise.all(curriculumsPromises)
         return res.status(200).json(classes);
     } catch (error) {
         console.log(error)
