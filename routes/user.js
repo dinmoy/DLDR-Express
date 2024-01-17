@@ -95,14 +95,13 @@ router.get('/:id/favorites', async (req, res) => {
     try {
         const favorites = await Favorite.findAll({where: {user_id: userId}})
 
-        const classPromises = favorites.map(async favorite => {
+        const favoriteClassPromises = favorites.map(async favorite => {
             return await Classes.findOne({
                 where: {
                     id: favorite.class_id
                 }
             });
         });
-
         const classes = await Promise.all(classPromises);
         return res.status(200).json(classes);
 
@@ -131,19 +130,35 @@ router.get('/:id/chatrooms', async (req, res) => {
                 order:[['createdAt','DESC']],
                 limit:1
             });
-
+            
+            const studentPromise=User.findOne({
+                where:{
+                    id:chatroom.student_user_id
+                }
+            });
             const teacherPromise=User.findOne({
                 where:{
                     id:chatroom.teacher_user_id
                 }
                 
             });
-            const [recentMessage, teacher] = await Promise.all([recentMessagePromise, teacherPromise]);
+            const classPromise=Classes.findOne({
+                where:{
+                    id:chatroom.class_id
+                }
+            });
+            const [recentMessage, teacher,student, classes] = await Promise.all([recentMessagePromise,teacherPromise, studentPromise,classPromise]);
             
             return {
                 ...chatroom.dataValues,
                 teacher: {
                     ...teacher.dataValues
+                },
+                user:{
+                    ...student.dataValues
+                },
+                class:{
+                    ...classes.dataValues
                 },
                 recent_message: recentMessage ? {
                     ...recentMessage.dataValues
