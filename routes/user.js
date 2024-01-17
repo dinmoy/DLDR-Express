@@ -94,14 +94,30 @@ router.get('/:id/favorites', async (req, res) => {
 
     try {
         const favorites = await Favorite.findAll({where: {user_id: userId}})
-
-        const favoriteClassPromises = favorites.map(async favorite => {
-            return await Classes.findOne({
+    
+        const classPromises = favorites.map(async favorite => { 
+            const favoriteClass=await Classes.findOne({
                 where: {
                     id: favorite.class_id
                 }
             });
+            const teacherPromise=await User.findOne({
+                where:{
+                    id: favoriteClass.id
+                }
+            });
+            const [favoriteclass,teacher]=await Promise.all([favoriteClass,teacherPromise]);
+            return {
+                ...favorite.dataValues,
+                teacher:{
+                    ...teacher.dataValues
+                },
+                class:{
+                    ...favoriteclass.dataValues
+                }
+            };
         });
+
         const classes = await Promise.all(classPromises);
         return res.status(200).json(classes);
 
