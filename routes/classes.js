@@ -124,9 +124,25 @@ router.get('/', async (req, res) => {
 //read one class's all reviews
 router.get('/:id/reviews', async (req, res) => {
     const classId = req.params.id;
+
     try {
         const classReviews = await Review.findAll({ where: { class_id: classId } });
-        return res.status(200).json(classReviews);
+        
+        const reviewPromises=classReviews.map(async review =>{
+            const user=await User.findOne({
+                where:{
+                    id:review.user_id
+                }
+            });
+            return{
+                ...review.dataValues,
+                user:{
+                    ...user.dataValues
+                },
+            };
+        });
+        const review=await Promise.all(reviewPromises);
+        return res.status(200).json(review);
     } catch (error) {
         console.error(error);
         return res.status(500).json({ error: 'Error reading reviews for the class' });
@@ -141,20 +157,21 @@ router.get('/:id/curriculums', async (req, res) => {
     try {
         const classCurriculums = await Curriculum.findAll({ where: { class_id: classId } });
         if (userId) {
-            const watchedPromise = classCurriculums.map(async watchedClass => {
-                const watched = await WatchHistories.findOne({
-                    where: {
-                        curriculum_id: watchedClass.id, 
-                        user_id:userId
-                    }
-                });
+            const histories = await WatchHistories.findAll({
+                where:{
+                    user_id:userId,
+                    curriculum_id:classCurriculums.map(curriculum=>curriculum.id)
+                }
+            });
+
+            const WatchStatus=classCurriculums.map(curriculum=>{
+                const watchedCurriculum=histories.find(history => history.curriculum_id === curriculum.id);
                 return {
-                    ...watchedClass.dataValues,
-                    isWatched: watched?true:false,
+                    ...curriculum.dataValues,
+                    isWatched: watchedCurriculum?true:false,
                 };
             });
-            const curriculumWithWatchStatus = await Promise.all(watchedPromise);
-            return res.status(200).json(curriculumWithWatchStatus);
+        return res.status(200).json(WatchStatus);
         }
         return res.status(200).json(classCurriculums);
     } catch (error) {
@@ -162,8 +179,6 @@ router.get('/:id/curriculums', async (req, res) => {
         return res.status(500).json({ error: 'Error reading class all curriculums' });
     }
 });
-
-
 
 //read one class's all chatrooms
 router.get('/:id/chatrooms', async (req, res) => {
@@ -200,8 +215,6 @@ router.get('/:id/tests',async(req,res)=>{
         return res.status(500).json({error:'Error reading all test'})
     }
 })
-
-
 
 router.put('/:id',async (req,res)=>{
     const classId=req.params.id;
