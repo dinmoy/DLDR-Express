@@ -86,6 +86,7 @@ router.get('/', async (req, res) => {
         return res.status(500).json({ error: 'Error reading all curriculums' });
     }
 });
+
 // 특정 커리큘럼 업데이트
 router.put('/:id', async (req, res) => {
     try {
