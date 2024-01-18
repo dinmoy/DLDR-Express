@@ -1,5 +1,5 @@
 const express = require('express')
-const {Chatroom, Message} = require('../models')// user model
+const {Chatroom, Message, User, Classes } = require('../models')// user model
 
 const router = express.Router();
 
@@ -19,6 +19,37 @@ router.post('/', async (req, res) => {
         return res.status(201).json(newChatroom)
     } catch (error) {
         return res.status(500).json('Error creating ChatRooms')
+    }
+})
+
+router.get('/:id', async (req, res) => {
+    try {
+        const id = req.params.id
+
+        const chatroom = await Chatroom.findByPk(id);
+
+        if (!chatroom) {
+            return res.status(404).json({ error: 'Chatroom doesnt Exists'})
+        }
+
+        // 유저가 학생일 때
+        const teacher = await User.findByPk(chatroom.teacher_user_id);
+
+        const chatroomClass = await Classes.findByPk(chatroom.class_id);
+
+        const data = {
+            ...chatroom.dataValues,
+            "teacher": {
+                ...teacher.dataValues
+            },
+            "class": {
+                ...chatroomClass.dataValues
+            }
+        }
+
+        return res.status(200).json(data);
+    } catch (error) {
+        return res.status(500).json({ error: 'Error Find ChatRoom'})
     }
 })
 
