@@ -288,7 +288,7 @@ router.get('/:id/watch_histories', async (req, res) => {
         console.log(error)
         return res.status(500).json({ error: 'Error finding Histories' });
     }
-})
+});
 
 // 유저 업데이트 하기
 router.put('/:id', async (req, res) => {
