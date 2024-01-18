@@ -2,7 +2,6 @@ const express = require('express')
 const session = require('express-session');
 const sequelize = require('./config/database')
 const app = express()
-const http=
 const path = require('path')
 const port = 3000
 
