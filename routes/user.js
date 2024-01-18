@@ -279,7 +279,10 @@ router.get('/:id/watch_histories', async (req, res) => {
                 teacher:{
                     ...teacher.dataValues
                 },
-                ...classes.dataValues
+                class:{
+                    ...classes.dataValues
+                }
+               
             }
         })
         const classes = await Promise.all(curriculumsPromises)
