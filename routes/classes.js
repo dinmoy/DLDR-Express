@@ -113,7 +113,28 @@ router.get('/', async (req, res) => {
         } else {
             classes = await Classes.findAll();
         }
-        return res.status(200).json(classes);
+
+        const userPromises = classes.map(async oneClass => {
+            return await User.findOne({
+                where: {
+                    id: oneClass.user_id
+                }
+            })
+        });
+
+        const users = await Promise.all(userPromises);
+
+        console.log('users', users);
+        const data = classes.map((oneClass, index) => {
+            return {
+                ...oneClass.dataValues,
+                teacher: {
+                    ...users[index].dataValues
+                }
+            }
+        });
+
+        return res.status(200).json(data);
     } catch (error) {
         console.log(error);
         return res.status(500).json({ error: 'Error reading classes' });
@@ -209,6 +230,7 @@ router.put('/:id',async (req,res)=>{
         await classes.update(req.body);
         return res.status(200).json(classes);
     }catch(error){
+        console.log(error)
         return res.status(500).json({error:'Error updating class'});
     }
 })
