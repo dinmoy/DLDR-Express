@@ -54,6 +54,15 @@ router.post('/upload', upload.single('thumbnail'), async (req, res) => {
     }
 });
 
+router.post('/', async (req, res) => {
+    try {
+        const newClass = await Classes.create(req.body);
+        return res.status(201).json(newClass);
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({ error: 'Error creating class' });
+    }
+});
 
 // read all classes
 router.get('/', async (req, res) => {
