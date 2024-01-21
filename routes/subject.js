@@ -26,4 +26,15 @@ router.get('/', async (req, res) => {
     }
 })
 
+router.post('/',async (req,res) => {
+    try{
+        const name = req.body;
+        const newSubject=await Subject.create(name);
+        return res.status(201).json(newSubject);
+    }catch(error){
+        console.log(error);
+        return res.status(500).json({ error : 'Error creating subjects'})
+    }
+})
+
 module.exports = router;
