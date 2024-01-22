@@ -1,5 +1,5 @@
 const express = require('express')
-const { EnrolledClasses, Classes } = require('../models')
+const { EnrolledClasses, Classes, Chatroom } = require('../models')
 
 const router = express.Router();
 
@@ -29,15 +29,22 @@ router.get('/:id', async (req, res) => {
 router.post('/', async (req, res) => {
     try {
         const { user_id, class_id } = req.body;
+        const oneClass = await Classes.findByPk(class_id);
         const enrolledClass = await EnrolledClasses.create({
             user_id,
             class_id,
             is_deleted: 0
         });
-        res.status(201).json(enrolledClass);
+        const chatRoom = await Chatroom.create({
+            teacher_user_id: oneClass.user_id,
+            student_user_id: user_id,
+            class_id: class_id
+        });
+        await enrolledClass.update(chatRoom);
+        return res.status(201).json(enrolledClass);
     } catch (error) {
         console.error(error);
-        res.status(500).json({ success: false, message: 'Error enrolling class' });
+        return res.status(500).json({ success: false, message: 'Error enrolling class' });
     }
 });
 
