@@ -29,10 +29,11 @@ const upload = multer({ storage });
 router.post('/', upload.single('thumbnail'), async (req, res) => {
     try {
         const { filename} = req.file;
-        const { user_id, subject_id, name, introduction } = req.body;
+        const { user_id, subject_id, sub_title,name, introduction } = req.body;
         const newClass = await Classes.create({
             user_id: user_id,
             subject_id: subject_id,
+            sub_title:sub_title,
             name: name,
             introduction: introduction,
             thumbnail: `uploads\\thumbnails\\${filename}`,
