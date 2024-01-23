@@ -25,42 +25,26 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage });
 
-// upload thumbnail
-router.post('/upload', upload.single('thumbnail'), async (req, res) => {
+//클래스 생성 with 썸네일
+router.post('/', upload.single('thumbnail'), async (req, res) => {
     try {
-        const { filename, path: filePath } = req.file;
-        const classId = req.body.classId;
-        const oneClass = await Classes.findByPk(classId);
-        if (oneClass) {
-            oneClass.thumbnail = path.relative(path.join(__dirname, '..'), filePath);
-            await oneClass.save();
-            res.status(200).json({
-                success: true,
-                message: 'thumbnail uploaded successfully',
-                thumbnail: oneClass.thumbnail
-            });
-        } else {
-            res.status(404).json({
-                success: false,
-                message: 'Classes not found'
-            });
-        }
+        const { filename} = req.file;
+        const { user_id, subject_id, name, introduction } = req.body;
+        const newClass = await Classes.create({
+            user_id: user_id,
+            subject_id: subject_id,
+            name: name,
+            introduction: introduction,
+            thumbnail: `uploads\\thumbnails\\${filename}`,
+            is_deleted:0
+        })
+        return res.status(201).json(newClass);
     } catch (error) {
         console.log(error);
         res.status(500).json({
             success: false,
             message: 'Error uploading thumbnail'
         });
-    }
-});
-
-router.post('/', async (req, res) => {
-    try {
-        const newClass = await Classes.create(req.body);
-        return res.status(201).json(newClass);
-    } catch (error) {
-        console.log(error);
-        return res.status(500).json({ error: 'Error creating class' });
     }
 });
 
@@ -158,7 +142,7 @@ router.get('/:id', async (req, res) => {
 
         res.status(200).json(foundClass);
     } catch (error) {
-        res.status(500).json({ error: 'Error reading class'})
+        res.status(500).json({ error: 'Error reading class' })
     }
 })
 
@@ -169,21 +153,21 @@ router.get('/:id/reviews', async (req, res) => {
 
     try {
         const classReviews = await Review.findAll({ where: { class_id: classId } });
-        
-        const reviewPromises=classReviews.map(async review =>{
-            const user=await User.findOne({
-                where:{
-                    id:review.user_id
+
+        const reviewPromises = classReviews.map(async review => {
+            const user = await User.findOne({
+                where: {
+                    id: review.user_id
                 }
             });
-            return{
+            return {
                 ...review.dataValues,
-                user:{
+                user: {
                     ...user.dataValues
                 },
             };
         });
-        const review=await Promise.all(reviewPromises);
+        const review = await Promise.all(reviewPromises);
         return res.status(200).json(review);
     } catch (error) {
         console.error(error);
@@ -194,24 +178,24 @@ router.get('/:id/reviews', async (req, res) => {
 //read one class's all curriculums
 router.get('/:id/curriculums', async (req, res) => {
     const classId = req.params.id;
-    const userId = req.query.userId; 
+    const userId = req.query.userId;
     try {
         const classCurriculums = await Curriculum.findAll({ where: { class_id: classId } });
         if (userId) {
             const histories = await WatchHistories.findAll({
-                where:{
-                    user_id:userId,
-                    curriculum_id:classCurriculums.map(curriculum=>curriculum.id)
+                where: {
+                    user_id: userId,
+                    curriculum_id: classCurriculums.map(curriculum => curriculum.id)
                 }
             });
-            const WatchStatus=classCurriculums.map(curriculum=>{
-                const watchedCurriculum=histories.find(history => history.curriculum_id === curriculum.id);
+            const WatchStatus = classCurriculums.map(curriculum => {
+                const watchedCurriculum = histories.find(history => history.curriculum_id === curriculum.id);
                 return {
                     ...curriculum.dataValues,
-                    isWatched: watchedCurriculum?true:false,
+                    isWatched: watchedCurriculum ? true : false,
                 };
             });
-        return res.status(200).json(WatchStatus);
+            return res.status(200).json(WatchStatus);
         }
         return res.status(200).json(classCurriculums);
     } catch (error) {
@@ -243,31 +227,31 @@ router.get('/:id/favorite', async (req, res) => {
 });
 
 //read one class's all test
-router.get('/:id/tests',async(req,res)=>{
-    const classId=req.params.id;
-    try{
-        const classCurriculums=await Curriculum.findAll({where: {class_id:classId}});
-        const curriculumId=classCurriculums.map(curriculum => curriculum.id)
-        const classTest=await Test.findAll({where: {curriculum_id:curriculumId} });
+router.get('/:id/tests', async (req, res) => {
+    const classId = req.params.id;
+    try {
+        const classCurriculums = await Curriculum.findAll({ where: { class_id: classId } });
+        const curriculumId = classCurriculums.map(curriculum => curriculum.id)
+        const classTest = await Test.findAll({ where: { curriculum_id: curriculumId } });
         return res.status(200).json(classTest);
-    }catch(error){
+    } catch (error) {
         console.error.log(error);
-        return res.status(500).json({error:'Error reading all test'})
+        return res.status(500).json({ error: 'Error reading all test' })
     }
 })
 
-router.put('/:id',async (req,res)=>{
-    const classId=req.params.id;
-    try{
-        const classes=await Classes.findByPk(classId);
-        if(!classes){
-            return res.status(404).json({error: 'Class not found'});
+router.put('/:id', async (req, res) => {
+    const classId = req.params.id;
+    try {
+        const classes = await Classes.findByPk(classId);
+        if (!classes) {
+            return res.status(404).json({ error: 'Class not found' });
         }
         await classes.update(req.body);
         return res.status(200).json(classes);
-    }catch(error){
+    } catch (error) {
         console.log(error)
-        return res.status(500).json({error:'Error updating class'});
+        return res.status(500).json({ error: 'Error updating class' });
     }
 })
 

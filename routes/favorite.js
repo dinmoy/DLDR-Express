@@ -20,7 +20,7 @@ router.post('/', async (req, res) => {
             is_deleted: 0
         })
 
-        return res.status(201).json(newFavorite);
+        return res.status(200).json();
     } catch (error) {
         console.log(error)
         return res.status(500).json({ error: 'Error creating favorite'})

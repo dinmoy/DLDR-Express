@@ -30,6 +30,15 @@ router.post('/', async (req, res) => {
     try {
         const { user_id, class_id } = req.body;
         const oneClass = await Classes.findByPk(class_id);
+        const existClass = await EnrolledClasses.findOne({
+            where: {
+                user_id:user_id,
+                class_id:class_id,
+            }
+        })
+        if(existClass){
+            return res.status(400).json({error: 'This class has already been applied for'});
+        }
         const enrolledClass = await EnrolledClasses.create({
             user_id,
             class_id,
