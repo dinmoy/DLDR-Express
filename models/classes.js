@@ -24,10 +24,10 @@ const Classes = (sequelize) => {
                 key: 'id',
             },
         },
-        // sub_title: {
-        //     type: DataTypes.STRING(20),
-        //     allowNull:false,
-        // },
+        sub_title: {
+            type: DataTypes.STRING(20),
+            allowNull:false,
+        },
         name: {
             type: DataTypes.STRING(255),
             allowNull: false,
