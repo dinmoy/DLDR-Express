@@ -36,7 +36,7 @@ router.post('/', upload.single('thumbnail'), async (req, res) => {
             sub_title:sub_title,
             name: name,
             introduction: introduction,
-            thumbnail: `uploads\\thumbnails\\${filename}`,
+            thumbnail: `uploads/thumbnails/${filename}`,
             is_deleted:0
         })
         return res.status(201).json(newClass);
