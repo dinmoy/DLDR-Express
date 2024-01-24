@@ -28,7 +28,7 @@ const upload = multer({ storage });
 //클래스 생성 with 썸네일
 router.post('/', upload.single('thumbnail'), async (req, res) => {
     try {
-        const { filename} = req.file;
+        const { filename } = req.file;
         const { user_id, subject_id, sub_title,name, introduction } = req.body;
         const newClass = await Classes.create({
             user_id: user_id,
