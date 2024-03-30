@@ -2,14 +2,14 @@ const express = require('express');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
-const {Op}=require('sequelize');
+const { Op } = require('sequelize');
 const { Curriculum } = require('../models');
 
 const router = express.Router();
 
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
-        const uploadDir = path.join(__dirname, '../uploads/videos');
+        const uploadDir = path.join(__dirname, '../uploads/curriculums');
         if (!fs.existsSync(uploadDir)) {
             fs.mkdirSync(uploadDir, { recursive: true });
         }
@@ -24,14 +24,14 @@ const storage = multer.diskStorage({
 const upload = multer({ storage });
 
 // upload video
-router.post('/upload', upload.single('videofile'), async (req, res) => {
+router.post('/video', upload.single('videofile'), async (req, res) => {
     try {
         const { filename, path: filePath } = req.file;
 
         const curriculumId = req.body.curriculumId;
         const curriculum = await Curriculum.findByPk(curriculumId);
         if (curriculum) {
-            curriculum.video = path.relative(path.join(__dirname, '../uploads/videos'), filePath);
+            curriculum.video = path.relative(path.join(__dirname, '..'), filePath);
             await curriculum.save();
             res.status(200).json({
                 success: true,
@@ -53,6 +53,35 @@ router.post('/upload', upload.single('videofile'), async (req, res) => {
     }
 });
 
+// TODO: upload document
+router.post('/docs', upload.single('file'), async (req, res) => {
+    try {
+        const { filename, path: filePath } = req.file;
+
+        const curriculumId = req.body.curriculumId;
+        const curriculum = await Curriculum.findByPk(curriculumId);
+        if (curriculum) {
+            curriculum.document = path.relative(path.join(__dirname, '..'), filePath);
+            await curriculum.save();
+            res.status(200).json({
+                success: true,
+                message: 'Video uploaded successfully',
+                document: curriculum.document
+            });
+        } else {
+            res.status(404).json({
+                success: false,
+                message: 'Curriculum not found'
+            });
+        }
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({
+            success: false,
+            message: 'Error uploading video'
+        });
+    }
+});
 
 // 커리큘럼 생성 엔드포인트
 router.post('/', async (req, res) => {
@@ -105,8 +134,6 @@ router.put('/:id', async (req, res) => {
         res.status(500).json({ success: false, message: 'Error updating curriculum' });
     }
 });
-
-
 
 // 하나의 커리큘럼 조회
 router.get('/:id', async (req, res) => {
