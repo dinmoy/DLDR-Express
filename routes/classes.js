@@ -256,4 +256,20 @@ router.put('/:id', async (req, res) => {
     }
 })
 
+router.delete('/:id', async (req, res) => {
+    const { id } = req.params;
+    try {
+        const findClass = await Classes.findByPk(id);
+
+        if (!findClass) {
+            return res.status(404).json({error: 'Class not found'});
+        }
+
+        await findClass.destroy();
+        return res.status(204).json();
+    } catch (error) {
+        return res.status(500).json({error: 'Error deleting class'});
+    }
+})
+
 module.exports = router;
