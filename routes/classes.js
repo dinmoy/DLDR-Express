@@ -114,7 +114,7 @@ router.get('/', async (req, res) => {
                     id: oneClass.user_id
                 }
             });
-            const isFavorited = await Favorite.findOne({
+            const isFavorite = await Favorite.findOne({
                 where: {
                     user_id: userId,
                     class_id: oneClass.id
@@ -123,7 +123,7 @@ router.get('/', async (req, res) => {
             return {
                 ...oneClass.dataValues,
                 teacher: user.dataValues,
-                isFavorited: !!isFavorited
+                isFavorite: !!isFavorite
             };
         });
 
