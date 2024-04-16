@@ -11,6 +11,9 @@ const port = 3000
 const SEC = 1000;
 const HOUR = 60 * 60 * SEC;
 
+//socket
+const socket=require('./sockets/socket')
+socket(server)
 // routes
 const userRouter = require('./routes/user') // Adjust the path as needed
 const classRouter = require('./routes/classes')
