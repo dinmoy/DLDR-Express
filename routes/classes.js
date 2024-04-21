@@ -29,15 +29,15 @@ const upload = multer({ storage });
 router.post('/', upload.single('thumbnail'), async (req, res) => {
     try {
         const { filename } = req.file;
-        const { user_id, subject_id, sub_title,name, introduction } = req.body;
+        const { user_id, subject_id, sub_title, name, introduction } = req.body;
         const newClass = await Classes.create({
             user_id: user_id,
             subject_id: subject_id,
-            sub_title:sub_title,
+            sub_title: sub_title,
             name: name,
             introduction: introduction,
             thumbnail: `uploads/thumbnails/${filename}`,
-            is_deleted:0
+            is_deleted: 0
         })
         return res.status(201).json(newClass);
     } catch (error) {
@@ -55,6 +55,7 @@ router.get('/', async (req, res) => {
     const keyword = req.query.keyword;
     const sort = req.query.sort;
     const limit = req.query.limit ? parseInt(req.query.limit, 10) : undefined;
+    const userId = req.query.user_id;
 
     try {
         let classes;
@@ -98,37 +99,37 @@ router.get('/', async (req, res) => {
         } else {
             classes = await Classes.findAll();
         }
+
         if (subjectId) {
             classes = await Classes.findAll({
                 where: {
                     subject_id: subjectId
                 }
             });
-        } else {
-            classes = await Classes.findAll();
         }
 
-        const userPromises = classes.map(async oneClass => {
-            return await User.findOne({
+        const classInfoPromises = classes.map(async (oneClass) => {
+            const user = await User.findOne({
                 where: {
                     id: oneClass.user_id
                 }
-            })
-        });
-
-        const users = await Promise.all(userPromises);
-
-        console.log('users', users);
-        const data = classes.map((oneClass, index) => {
+            });
+            const isFavorite = await Favorite.findOne({
+                where: {
+                    user_id: userId,
+                    class_id: oneClass.id
+                }
+            });
             return {
                 ...oneClass.dataValues,
-                teacher: {
-                    ...users[index].dataValues
-                }
-            }
+                teacher: user.dataValues,
+                isFavorite: !!isFavorite
+            };
         });
 
-        return res.status(200).json(data);
+        const classesWithUserInfo = await Promise.all(classInfoPromises);
+
+        return res.status(200).json(classesWithUserInfo);
     } catch (error) {
         console.log(error);
         return res.status(500).json({ error: 'Error reading classes' });
@@ -262,13 +263,13 @@ router.delete('/:id', async (req, res) => {
         const findClass = await Classes.findByPk(id);
 
         if (!findClass) {
-            return res.status(404).json({error: 'Class not found'});
+            return res.status(404).json({ error: 'Class not found' });
         }
 
         await findClass.destroy();
         return res.status(204).json();
     } catch (error) {
-        return res.status(500).json({error: 'Error deleting class'});
+        return res.status(500).json({ error: 'Error deleting class' });
     }
 })
 
