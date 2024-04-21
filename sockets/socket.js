@@ -1,5 +1,5 @@
 const socketIO = require('socket.io');
-const { User, Chatroom, Message,Classes} = require('../models');
+const { User, Chatroom, Message, Classes } = require('../models');
 
 const Socket = (server) => {
     const io = socketIO(server);
@@ -8,6 +8,7 @@ const Socket = (server) => {
         console.log('A user connected');
         message(socket);
         readChatRoomList(socket);
+        readChatList(socket);
         disconnect(socket);
     });
 
@@ -53,9 +54,9 @@ const readChatRoomList = (socket) => {
             const chatroomDetails = await Promise.all(rooms.map(async (room) => {
                 const teacher = await User.findByPk(room.teacher_user_id);
                 const chatroomClass = await Classes.findByPk(room.class_id);
-                
+
                 return {
-                    ...room.dataValues, 
+                    ...room.dataValues,
                     teacher: teacher ? teacher.dataValues : null,
                     class: chatroomClass ? chatroomClass.dataValues : null,
                 }
@@ -67,9 +68,30 @@ const readChatRoomList = (socket) => {
     })
 }
 
+//특정 채팅방의 채팅목록 조회
+const readChatList = (socket) => {
+    socket.on('reqChatList', async (req) => {
+        const { roomId } = req
+        socket.join(roomId)
+        console.log(`${roomId}`)
+
+        try {
+            const chatList = await Message.findAll({
+                where: { chatroom_id: roomId },
+                order: [['createdAt', 'ASC']],
+            })
+            socket.emit('resChatList', chatList)
+        } catch (error) {
+            socket.emit('chatListError', { message: 'Error reading chatList' });
+        }
+    })
+}
+
 const disconnect = (socket) => {
     socket.on('disconnect', () => {
         console.log('Socket disconnected')
+        socket.emit('loginError', { message: 'User not found' });
+        return;
     })
 }
 
