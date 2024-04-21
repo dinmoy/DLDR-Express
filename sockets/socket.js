@@ -14,16 +14,28 @@ const Socket = (server) => {
 
     return io;
 };
+const updateReadStatus = async (userId, roomId) => {
+    try {
+        await Message.update(
+            { read_status: 'read' },
+            { where: { user_id: userId, chatroom_id: roomId, read_status: 'not_read' } }
+        );
+        console.log(`UserId ${userId}의 메시지의 읽음 상태를 변경했습니다.`);
+    } catch (error) {
+        console.error('Error updating read status:', error);
+    }
+};
 
 // 메시지 전송
 const message = async (socket) => {
     socket.on('reqMessage', async (messageObj) => {
         try {
-            const { user_id, chatroom_id, message } = messageObj;
+            const { user_id, chatroom_id, message,read_status } = messageObj;
             const newMessage = await Message.create({
                 user_id,
                 chatroom_id,
                 message,
+                read_status,
             })
 
             await Chatroom.update(
@@ -71,7 +83,7 @@ const readChatRoomList = (socket) => {
 //특정 채팅방의 채팅목록 조회
 const readChatList = (socket) => {
     socket.on('reqChatList', async (req) => {
-        const { roomId } = req
+        const { userId,roomId } = req
         socket.join(roomId)
         console.log(`${roomId}`)
 
@@ -81,6 +93,7 @@ const readChatList = (socket) => {
                 order: [['createdAt', 'ASC']],
             })
             socket.emit('resChatList', chatList)
+            await updateReadStatus(userId, roomId);
         } catch (error) {
             socket.emit('chatListError', { message: 'Error reading chatList' });
         }
