@@ -24,19 +24,19 @@ const message = async (socket) => {
                 user_id,
                 chatroom_id,
                 message,
-            });
+            })
 
-            await ChatRoom.update(
-                { last_chat: newMessage },
+            await Chatroom.update(
+                { last_chat: newMessage.message },
                 { where: { id: chatroom_id } }
-            );
+            )
 
             socket.to(chatroom_id).emit('resMessage', newMessage);
         } catch (error) {
             console.log('Error sending message: ', error);
         }
-    });
-};
+    })
+}
 
 //특정 유저의 채팅방 목록 조회
 const readChatRoomList = (socket) => {
