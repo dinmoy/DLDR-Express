@@ -5,14 +5,15 @@ const path = require('path')
 const http=require('http')
 const app = express()
 const server=http.createServer(app)
-const socketIO=require('socket.io')
-const io=socketIO(server)
 const port = 3000
 
 // 세션
 const SEC = 1000;
 const HOUR = 60 * 60 * SEC;
 
+//socket
+const socket=require('./sockets/socket')
+socket(server)
 // routes
 const userRouter = require('./routes/user') // Adjust the path as needed
 const classRouter = require('./routes/classes')
@@ -75,21 +76,9 @@ app.get('/', (req, res) => {
     res.send('Do Learn! Do Run!')
 })
 
-io.on('connection',(socket)=>{
-    socket.on('chatting',(data)=>{
-        console.log(data)
-        io.to(data.receiverId).emit('chatting', data);
-    })
-    socket.on('disconnect', () => {
-        console.log('User disconnected');
-    });
-    
-})
 
 server.listen(port,()=> console.log(`server is running ${port}`))
-// app.listen(port, () => {
-//     console.log(`Example app listening on port ${port} `)
-// })
+
 
 
 

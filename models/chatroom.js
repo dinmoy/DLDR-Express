@@ -32,6 +32,14 @@ const Chatroom = (sequalize) => {
                 key: 'id',
             }
         },
+        last_chat:{
+            type:DataTypes.STRING(255),
+            allowNull:false,
+            references:{
+                model:'message',
+                key:'id',
+            },
+        },
     })
 }
 

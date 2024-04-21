@@ -28,6 +28,10 @@ const Message = (sequalize) => {
             type: DataTypes.STRING(255),
             allowNull: false,
         },
+        read_status: {
+            type: DataTypes.STRING(20),
+            allowNull: false,
+        },
     })
 }
 
