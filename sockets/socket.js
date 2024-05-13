@@ -67,10 +67,14 @@ const readChatRoomList = (socket) => {
                 const teacher = await User.findByPk(room.teacher_user_id);
                 const chatroomClass = await Classes.findByPk(room.class_id);
 
+                const unreadMessagesCount =await Message.count({
+                    where: {chatroom_id:room.id, read_status:'not_read'}
+                })
                 return {
                     ...room.dataValues,
                     teacher: teacher ? teacher.dataValues : null,
                     class: chatroomClass ? chatroomClass.dataValues : null,
+                    unreadMessages: unreadMessagesCount
                 }
             }))
             socket.emit('resChatRoomList', chatroomDetails);
